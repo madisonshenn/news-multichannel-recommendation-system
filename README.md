@@ -12,6 +12,7 @@
 - [Model Development](#model-development)
   - [Multi-Channel Recall Dictionary](#multi-channel-recall-dictionary)
   - [Similarity Matrices](#similarity-matrices)
+  - [ItemCF and UserCF Recall](#itemcf-and-usercf-recall)
   - [Embedding Recall with Faiss](#embedding-recall-with-faiss)
   - [Cold Start Problem](#cold-start-problem)
   - [Recall Fusion and Evaluation](#recall-fusion-and-evaluation)
@@ -34,9 +35,9 @@ flowchart TD
 # Introduction  
 
 ## Problem Statement & Approach  
-**Objective.** Recommend news articles to users based on historical browsing/click logs collected from a real product.  
+**Objective:** Recommend news articles to users based on historical browsing/click logs collected from a real product.  
 
-**Approach.** Reframe the task as **CTR prediction**:  
+**Approach:** Reframe the task as **CTR prediction**:  
 **(user, article) → click probability**, then select top-K per user. To scale candidate generation, use a **multi-channel recall** strategy (simple/fast heuristics from different perspectives) followed by a ranking/fusion step. This balances **latency** and **recall**.  
 
 ## Evaluation Metric  
@@ -49,14 +50,14 @@ If the true article is at rank 1, the contribution is 1; if at rank 2, it is 1/2
 # Data  
 
 ## Reading Modes  
-1. **Debug.** Build a baseline quickly on a sampled training subset (`train_click_log_sample`) to validate code paths.
-2. **Offline validation.** Use full training logs (`train_click_log`), split into **train/val** for model and hyper-parameter selection.
-3. **Online.** Train on all available logs and predict on test logs (`train_click_log + test_click_log`).
+1. **Debug:** Build a baseline quickly on a sampled training subset (`train_click_log_sample`) to validate code paths.
+2. **Offline validation:** Use full training logs (`train_click_log`), split into **train/val** for model and hyper-parameter selection.
+3. **Online:** Train on all available logs and predict on test logs (`train_click_log + test_click_log`).
 
 ## Overview
-- **Scale.** ~300k users, ~3M clicks, ~360k articles with precomputed embeddings.  
-- **Splits.** 200k users for training; 50k users for test-A; 50k users for test-B.
-- **Files.**
+- **Scale:** ~300k users, ~3M clicks, ~360k articles with precomputed embeddings.  
+- **Splits:** 200k users for training; 50k users for test-A; 50k users for test-B.
+- **Files:**
   - `train_click_log.csv` — user click logs (train)
   - `testA_click_log.csv` — user click logs (test A)
   - `articles.csv` — article metadata (category, words, timestamps)
@@ -327,6 +328,18 @@ def usercf_sim(all_click_df, activate):
             u2u[u][v] = w / math.sqrt(u_cnt[u] * u_cnt[v])
     return u2u
 ```
+## ItemCF and UserCF Recall
+**itemcf recall**   
+Using collaborative filtering and embeddings, we have the article similarity matrix. Now apply itemCF recall: recommend items similar to user’s history. Association rules are used:
+Consider weight of order of historical vs similar articles
+Consider article creation time difference
+Consider content similarity weight (embedding). Note: embedding similarity does not cover all pairs, so special handling is needed.  
+**userCF Recall**  
+Based on user-based collaborative filtering: recommend items clicked by similar users.
+Association rules are added to weight recommended items based on relations between:
+Target user’s historical clicked articles
+Similar users’ historical clicked articles
+Weights are computed as the sum of: similarity, creation time difference, and relative position between the items.
 ## Embedding Recall with Faiss
 **Embedding Recall with Faiss**   
 Used to retrieve similar items efficiently (u2i/i2i) at scale. Faiss supports exact/approximate search and compression (e.g., PQ).
@@ -339,20 +352,7 @@ q    = np.asarray([query_vector], dtype=np.float32) # [1, d]
 index = faiss.IndexFlatL2(vecs.shape[1])
 index.add(vecs)
 D, I = index.search(q, k=5)  
-```
-
-**itemcf recall**   
-Using collaborative filtering and embeddings, we have the article similarity matrix. Now apply itemCF recall: recommend items similar to user’s history. Association rules are used:
-Consider weight of order of historical vs similar articles
-Consider article creation time difference
-Consider content similarity weight (embedding). Note: embedding similarity does not cover all pairs, so special handling is needed.  
-**userCF Recall**  
-Based on user-based collaborative filtering: recommend items clicked by similar users.
-Association rules are added to weight recommended items based on relations between:
-Target user’s historical clicked articles
-Similar users’ historical clicked articles
-Weights are computed as the sum of: similarity, creation time difference, and relative position between the items.
-
+```  
 ## Cold Start Problem
 For users/items with sparse history, apply simple rules on top of embedding recall to keep candidates aligned with recent interests.
 
