@@ -19,21 +19,8 @@
 
 ---
 
-flowchart TD
-    A[User Click Logs] --> B[Data Preprocessing]
+![flowchart](https://mermaid.ink/img/pako:eNqVklFPwzAMhv-KySsPjSpSGMIkHLae3IY8cbBFRhlpZLVp2H-N8dU9qO2Wk25kXx5uGdnq66s8F-wzU74sm5Ab6k3lpigXAIW8gGEbwa2WRFjyiBKgAb40ZovVwQtZlf5ZZL8cZ6MtqK9ZDnPMp10ciXgGmZtQfHhSG2aU1d-v6jF1wWuoWyxdr3qL_xEVWFmuMupMK4KQGWBjLaXWIZOUK2RZte5bBjSRwyo1hRZLByH2xG2_Fp5DAmVdcEFLdUOtXehyROAzikJpIhzk7x3UNxVLc3k94pI_z2mK-ljV4JEr1n0lgTTHuPoCscElu3TZtu69uy1pFXV5hK5u2pUtDPaHHvRnb-ixGlKtSoUVkFzn5s54acUmE)
 
-    B --> C1[ItemCF Recall]
-    B --> C2[UserCF Recall]
-    B --> C3[Embedding Recall (Faiss)]
-    B --> C4[Cold Start Module]
-
-    C1 --> D[Multi-Channel Merge]
-    C2 --> D
-    C3 --> D
-    C4 --> D
-
-    D --> E[Candidate Articles]
-    E --> F[Ranking / Submission]
 
 
 # Introduction  
