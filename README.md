@@ -218,35 +218,14 @@ def get_item_topk_click(click_df, k):
 ```
 
 # Model Development   
-┌─────────────────────┐
-│    User Click Logs  │
-└─────────┬───────────┘
-          │
-          v
-┌─────────────────────┐
-│  Data Preprocessing │
-└──┬───────┬───────┬──┘
-   │       │       │
-   v       v       v
-┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  ┌───────────────────┐
-│ ItemCF Recall│  │ UserCF Recall│  │ Embedding Recall     │  │ Cold Start Module │
-│              │  │              │  │ (Faiss)              │  │                   │
-└──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  └──────────┬────────┘
-       │                 │                      │                         │
-       └────────────┬────┴────────────┬────────┴────────────┬────────────┘
-                    v                 v                      v
-                ┌──────────────────────────────────────────────┐
-                │             Multi-Channel Merge               │
-                └──────────────────────┬───────────────────────┘
-                                       v
-                         ┌────────────────────────────┐
-                         │      Candidate Articles    │
-                         └──────────────┬─────────────┘
-                                        v
-                         ┌────────────────────────────┐
-                         │    Ranking / Submission    │
-                         └────────────────────────────┘
-
+[User Click Logs] --> [Data Preprocessing]
+        |                 | | | |
+        |                 | | | +--> [Cold Start Module]
+        |                 | | +----> [Embedding Recall (Faiss)]
+        |                 | +------> [UserCF Recall]
+        |                 +--------> [ItemCF Recall]
+                                   \
+                                    +--> [Multi-Channel Merge] --> [Candidate Articles] --> [Ranking / Submission]
 
 ## Multi-Channel Recall Dictionary
 ```python
