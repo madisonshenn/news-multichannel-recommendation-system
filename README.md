@@ -19,10 +19,6 @@
 
 ---
 
-![flowchart](https://mermaid.ink/img/pako:eNqVklFPwzAMhv-KySsPjSpSGMIkHLae3IY8cbBFRhlpZLVp2H-N8dU9qO2Wk25kXx5uGdnq66s8F-wzU74sm5Ab6k3lpigXAIW8gGEbwa2WRFjyiBKgAb40ZovVwQtZlf5ZZL8cZ6MtqK9ZDnPMp10ciXgGmZtQfHhSG2aU1d-v6jF1wWuoWyxdr3qL_xEVWFmuMupMK4KQGWBjLaXWIZOUK2RZte5bBjSRwyo1hRZLByH2xG2_Fp5DAmVdcEFLdUOtXehyROAzikJpIhzk7x3UNxVLc3k94pI_z2mK-ljV4JEr1n0lgTTHuPoCscElu3TZtu69uy1pFXV5hK5u2pUtDPaHHvRnb-ixGlKtSoUVkFzn5s54acUmE)
-
-
-
 # Introduction  
 
 ## Problem Statement & Approach  
@@ -222,6 +218,36 @@ def get_item_topk_click(click_df, k):
 ```
 
 # Model Development   
+┌─────────────────────┐
+│    User Click Logs  │
+└─────────┬───────────┘
+          │
+          v
+┌─────────────────────┐
+│  Data Preprocessing │
+└──┬───────┬───────┬──┘
+   │       │       │
+   v       v       v
+┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  ┌───────────────────┐
+│ ItemCF Recall│  │ UserCF Recall│  │ Embedding Recall     │  │ Cold Start Module │
+│              │  │              │  │ (Faiss)              │  │                   │
+└──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  └──────────┬────────┘
+       │                 │                      │                         │
+       └────────────┬────┴────────────┬────────┴────────────┬────────────┘
+                    v                 v                      v
+                ┌──────────────────────────────────────────────┐
+                │             Multi-Channel Merge               │
+                └──────────────────────┬───────────────────────┘
+                                       v
+                         ┌────────────────────────────┐
+                         │      Candidate Articles    │
+                         └──────────────┬─────────────┘
+                                        v
+                         ┌────────────────────────────┐
+                         │    Ranking / Submission    │
+                         └────────────────────────────┘
+
+
 ## Multi-Channel Recall Dictionary
 ```python
 # Multi-channel recall containers
