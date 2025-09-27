@@ -19,18 +19,22 @@
 
 ---
 
-flowchart TD  
-    A[User Click Logs] --> B[Data Preprocessing]  
-    B --> C1[ItemCF Recall]    
-    B --> C2[UserCF Recall]   
-    B --> C3[Embedding Recall (Faiss)]  
-    B --> C4[Cold Start Module]  
-    C1 --> D[Multi-Channel Merge]    
-    C2 --> D   
-    C3 --> D  
-    C4 --> D  
-    D --> E[Candidate Articles]  
-    E --> F[Ranking / Submission]  
+flowchart TD
+    A[User Click Logs] --> B[Data Preprocessing]
+
+    B --> C1[ItemCF Recall]
+    B --> C2[UserCF Recall]
+    B --> C3[Embedding Recall (Faiss)]
+    B --> C4[Cold Start Module]
+
+    C1 --> D[Multi-Channel Merge]
+    C2 --> D
+    C3 --> D
+    C4 --> D
+
+    D --> E[Candidate Articles]
+    E --> F[Ranking / Submission]
+
 
 # Introduction  
 
